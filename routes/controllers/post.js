@@ -1,195 +1,213 @@
 const conectores = require('../controllers/conexion');
-const conexion = conectores.mongo;
+const cassandra = conectores.cassandra();
 const redis = conectores.redis();
-const { Types } = require('mongoose');
 
 const postAdministrativo = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/administrativos');
-    const administrativo = new modelo({
-      _id: Types.ObjectId(req.body._id),
-      correo: req.body.correo,
-      cuenta: req.body.cuenta,
-      curp: req.body.curp,
-      escuela: req.body.escuela,
-      extension: req.body.extension,
-      funcion: req.body.funcion,
-      horaEntrada: req.body.horaEntrada,
-      horaSalida: req.body.horaSalida,
-      nombre: req.body.nombre,
-      telefono: req.body.telefono,
-    });
-    administrativo
-      .save()
-      .then((administrativo) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ADMINISTRATIVOS:POST:${new Date().getTime().toString()}`,
-            `Registro de administrativo ${administrativo._id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(administrativo);
-      })
-      .catch((err) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ADMINISTRATIVOS:POST:${new Date().getTime().toString()}`,
-            err.message
-          );
-          redis.quit();
-        });
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `ADMINISTRATIVOS:POST:${new Date().getTime().toString()}`,
+      `Registro de administrativo ${req.body.curp}`
+    );
+    redis.quit();
+  });
+
+  const queries = [
+    {
+      query:
+        'INSERT INTO administrativos(curp, correo, cuenta, escuela, extension, funcion, nombre, telefono) VALUES(?,?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.correo,
+        req.body.cuenta,
+        req.body.escuela,
+        req.body.extension,
+        req.body.funcion,
+        req.body.nombre,
+        req.body.telefono,
+      ],
+    },
+    {
+      query:
+        'INSERT INTO administrativos_escuela(curp, correo, cuenta, escuela, extension, funcion, nombre, telefono) VALUES(?,?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.correo,
+        req.body.cuenta,
+        req.body.escuela,
+        req.body.extension,
+        req.body.funcion,
+        req.body.nombre,
+        req.body.telefono,
+      ],
+    },
+  ];
+
+  cassandra.batch(queries, { prepare: true }, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    res.json(result);
   });
 };
 
 const postAlumno = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/alumnos');
-    const alumno = new modelo({
-      _id: Types.ObjectId(req.body._id),
-      curp: req.body.curp,
-      escuela: req.body.escuela,
-      fechaInscripcion: req.body.fechaInscripcion,
-      fechaNacimiento: req.body.fechaNacimiento,
-      grado: req.body.grado,
-      nombre: req.body.nombre,
-      tutor: req.body.tutor,
-      tutoriaFirmada: req.body.tutoriaFirmada,
-    });
-    alumno
-      .save()
-      .then((alumno) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ALUMNOS:POST:${new Date().getTime().toString()}`,
-            `Registro de alumno ${alumno._id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(alumno);
-      })
-      .catch((err) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ALUMNOS:POST:${new Date().getTime().toString()}`,
-            err.message
-          );
-          redis.quit();
-        });
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `ALUMNOS:POST:${new Date().getTime().toString()}`,
+      `Registro de alumno ${req.body.curp}`
+    );
+    redis.quit();
+  });
+
+  const queries = [
+    {
+      query:
+        'INSERT INTO alumnos(curp, escuela, fecha_inscripcion, fecha_nacimiento, grado, nombre, tutor, tutoria_firmada) VALUES(?,?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.escuela,
+        req.body.fecha_inscripcion,
+        req.body.fecha_nacimiento,
+        req.body.grado,
+        req.body.nombre,
+        req.body.tutor,
+        false,
+      ],
+    },
+    {
+      query:
+        'INSERT INTO alumnos_tutor(curp, escuela, fecha_inscripcion, fecha_nacimiento, grado, nombre, tutor, tutoria_firmada) VALUES(?,?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.escuela,
+        req.body.fecha_inscripcion,
+        req.body.fecha_nacimiento,
+        req.body.grado,
+        req.body.nombre,
+        req.body.tutor,
+        false,
+      ],
+    },
+  ];
+
+  cassandra.batch(queries, { prepare: true }, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    res.json(result);
   });
 };
 
 const postDocente = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/docentes');
-    const docente = new modelo({
-      _id: Types.ObjectId(req.body._id),
-      cuenta: req.body.cuenta,
-      curp: req.body.curp,
-      escuela: req.body.escuela,
-      especialidad: req.body.especialidad,
-      grado: req.body.grado,
-      nombre: req.body.nombre,
-      numeroOficina: req.body.numeroOficina,
-      telefono: req.body.telefono,
-      tutoriasFirmadas: req.body.tutoriasFirmadas,
-    });
-    docente
-      .save()
-      .then((docente) => {
-        redis.connect().then(() => {
-          redis.set(
-            `DOCENTES:POST:${new Date().getTime().toString()}`,
-            `Registro de docente ${docente._id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(docente);
-      })
-      .catch((err) => {
-        redis.connect().then(() => {
-          redis.set(
-            `DOCENTES:POST:${new Date().getTime().toString()}`,
-            err.message
-          );
-          redis.quit();
-        });
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `DOCENTES:POST:${new Date().getTime().toString()}`,
+      `Registro de docente ${req.body.curp}`
+    );
+    redis.quit();
+  });
+
+  const queries = [
+    {
+      query:
+        'INSERT INTO docentes(curp, cuenta, escuela, especialidad, grado, nombre, numero_oficina, telefono, tutorados, tutorias_firmadas) VALUES(?,?,?,?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.cuenta,
+        req.body.escuela,
+        req.body.especialidad,
+        req.body.grado,
+        req.body.nombre,
+        req.body.numero_oficina,
+        req.body.telefono,
+        req.body.tutorados,
+        req.body.tutorias_firmadas,
+      ],
+    },
+    {
+      query:
+        'INSERT INTO docentes_escuela(curp, cuenta, escuela, especialidad, grado, nombre, numero_oficina, telefono, tutorados, tutorias_firmadas) VALUES(?,?,?,?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.cuenta,
+        req.body.escuela,
+        req.body.especialidad,
+        req.body.grado,
+        req.body.nombre,
+        req.body.numero_oficina,
+        req.body.telefono,
+        req.body.tutorados,
+        req.body.tutorias_firmadas,
+      ],
+    },
+  ];
+
+  cassandra.batch(queries, { prepare: true }, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    res.json(result);
   });
 };
 
 const postEscuela = (req, res) => {
-  conexion().then(() => {
-    console.log(req.body);
-    const modelo = require('../../models/escuelas');
-    const escuela = new modelo({
-      _id: Types.ObjectId(req.body._id),
-      ciudad: req.body.ciudad,
-      clave: req.body.clave,
-      direccion: req.body.direccion,
-      nombre: req.body.nombre,
-    });
-    escuela
-      .save()
-      .then((escuela) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ESCUELAS:POST:${new Date().getTime().toString()}`,
-            `Registro de escuela ${escuela._id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(escuela);
-      })
-      .catch((err) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ESCUELAS:POST:${new Date().getTime().toString()}`,
-            err.message
-          );
-          redis.quit();
-        });
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `ESCUELAS:POST:${new Date().getTime().toString()}`,
+      `Registro de escuela ${req.body.clave}`
+    );
+    redis.quit();
   });
+
+  cassandra.execute(
+    'INSERT INTO escuelas(clave, ciudad, direccion, nombre, administrativos, alumnos, docentes, mantenimiento) VALUES(?,?,?,?,?,?,?,?)',
+    [
+      req.body.clave,
+      req.body.ciudad,
+      req.body.direccion,
+      req.body.nombre,
+      req.body.administrativos,
+      req.body.alumnos,
+      req.body.docentes,
+      req.body.mantenimiento,
+    ],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result);
+    }
+  );
 };
 
 const postMantenimiento = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/mantenimiento');
-    const mantenimiento = new modelo({
-      _id: Types.ObjectId(req.body._id),
-      cuenta: req.body.cuenta,
-      curp: req.body.curp,
-      escuela: req.body.escuela,
-      especialidad: req.body.especialidad,
-      nombre: req.body.nombre,
-      telefono: req.body.telefono,
-      telefonoInstitucional: req.body.telefonoInstitucional,
-    });
-    mantenimiento
-      .save()
-      .then((mantenimiento) => {
-        redis.connect().then(() => {
-          redis.set(
-            `MANTENIMIENTO:POST:${new Date().getTime().toString()}`,
-            `Registro de mantenimiento ${mantenimiento._id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(mantenimiento);
-      })
-      .catch((err) => {
-        redis.connect().then(() => {
-          redis.set(
-            `MANTENIMIENTO:POST:${new Date().getTime().toString()}`,
-            err.message
-          );
-          redis.quit();
-        });
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `MANTENIMIENTO:POST:${new Date().getTime().toString()}`,
+      `Registro de mantenimiento ${req.body.curp}`
+    );
+    redis.quit();
   });
+
+  cassandra.execute(
+    'INSERT INTO mantenimiento(curp, escuela, especialidad, nombre, telefono, telefono_institucional) VALUES(?,?,?,?,?,?)',
+    [
+      req.body.curp,
+      req.body.escuela,
+      req.body.especialidad,
+      req.body.nombre,
+      req.body.telefono,
+      req.body.telefono_institucional,
+    ],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result);
+    }
+  );
 };
 
 module.exports = {

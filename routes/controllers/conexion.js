@@ -1,8 +1,12 @@
-const mongoose = require('mongoose');
+const cassandra = require('cassandra-driver');
 const redis = require('redis');
 
-const mongo = () => {
-  return mongoose.connect('mongodb://localhost:27017/gestionEscolar');
+const clienteCassandra = () => {
+  return new cassandra.Client({
+    contactPoints: ['localhost'],
+    localDataCenter: 'datacenter1', //No tendría porque cambiar
+    keyspace: 'gestionescolar', //nombre de la base de datos a tratar
+  });
 };
 
 const conRedis = () => {
@@ -10,4 +14,4 @@ const conRedis = () => {
   return client;
 };
 
-module.exports = { mongo, redis: conRedis };
+module.exports = { cassandra: clienteCassandra, redis: conRedis };

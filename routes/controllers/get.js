@@ -1,245 +1,267 @@
 const conectores = require('../controllers/conexion');
-const conexion = conectores.mongo;
+const conexion = conectores.cassandra();
 const redis = conectores.redis();
-const { Types } = require('mongoose');
 
 const getAlumnos = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/alumnos');
-    modelo.find().then((alumnos) => {
-      redis.connect().then(() => {
-        redis.set(
-          `ALUMNOS:GET:${new Date().getTime().toString()}`,
-          'Consulta de alumnos'
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(alumnos);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `ALUMNOS:GET:${new Date().getTime().toString()}`,
+      'Consulta de alumnos'
+    );
+    redis.quit();
+  });
+
+  conexion.execute('SELECT * FROM alumnos', (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    res.json(result.rows);
   });
 };
 
 const getAlumno = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/alumnos');
-    modelo.findById(req.params.id).then((alumno) => {
-      redis.connect().then(() => {
-        redis.set(
-          `ALUMNOS:GET:${new Date().getTime().toString()}`,
-          `Consulta de alumno ${alumno._id}`
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(alumno);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `ALUMNOS:GET:${new Date().getTime().toString()}`,
+      `Consulta de alumno ${req.params.curp}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM alumnos WHERE curp=?',
+    [req.params.curp],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows[0]);
+    }
+  );
 };
 
 const getEscuelas = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/escuelas');
-    modelo.find().then((escuelas) => {
-      redis.connect().then(() => {
-        redis.set(
-          `ESCUELAS:GET:${new Date().getTime().toString()}`,
-          'Consulta de escuelas'
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(escuelas);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      'Consulta de escuelas'
+    );
+    redis.quit();
+  });
+
+  conexion.execute('SELECT * FROM escuelas', (err, results) => {
+    if (err) {
+      res.json(err);
+      return;
+    }
+    res.json(results.rows);
   });
 };
 
 const getEscuela = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/escuelas');
-    modelo.findById(req.params.id).then((escuela) => {
-      redis.connect().then(() => {
-        redis.set(
-          `ESCUELAS:GET:${new Date().getTime().toString()}`,
-          `Consulta de escuela ${escuela._id}`
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(escuela);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      `Consulta de escuela ${req.params.clave}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM escuelas where clave=?',
+    [req.params.clave],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows[0]);
+    }
+  );
 };
 
 const getDocentes = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/docentes');
-    modelo.find().then((docentes) => {
-      redis.connect().then(() => {
-        redis.set(
-          `DOCENTES:GET:${new Date().getTime().toString()}`,
-          'Consulta de docentes'
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(docentes);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `DOCENTES:GET:${new Date().getTime().toString()}`,
+      'Consulta de docentes'
+    );
+    redis.quit();
+  });
+
+  conexion.execute('SELECT * FROM docentes', (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    res.json(result.rows);
   });
 };
 
 const getDocente = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/docentes');
-    modelo.findById(req.params.id).then((docente) => {
-      redis.connect().then(() => {
-        redis.set(
-          `DOCENTES:GET:${new Date().getTime().toString()}`,
-          `Consulta de docente ${docente._id}`
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(docente);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `DOCENTES:GET:${new Date().getTime().toString()}`,
+      `Consulta de docente ${req.params.curp}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM docentes where curp=?',
+    [req.params.curp],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows[0]);
+    }
+  );
 };
 
 const getAdmistrativos = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/administrativos');
-    modelo.find().then((administrativos) => {
-      redis.connect().then(() => {
-        redis.set(
-          `ADMINISTRATIVOS:GET:${new Date().getTime().toString()}`,
-          'Consulta de administrativos'
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(administrativos);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `ADMINISTRATIVOS:GET:${new Date().getTime().toString()}`,
+      'Consulta de administrativos'
+    );
+    redis.quit();
+  });
+
+  conexion.execute('SELECT * FROM administrativos', (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    res.json(result.rows);
   });
 };
 
 const getAdmistrativo = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/administrativos');
-    modelo.findById(req.params.id).then((administrativo) => {
-      redis.connect().then(() => {
-        redis.set(
-          `ADMINISTRATIVOS:GET:${new Date().getTime().toString()}`,
-          `Consulta de administrativo ${administrativo._id}`
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(administrativo);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `ADMINISTRATIVOS:GET:${new Date().getTime().toString()}`,
+      `Consulta de administrativo ${req.params.curp}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM administrativos where curp=?',
+    [req.params.curp],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows[0]);
+    }
+  );
 };
 
 const getMantenimientos = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/mantenimiento');
-    modelo.find().then((mantenimiento) => {
-      redis.connect().then(() => {
-        redis.set(
-          `MANTENIMIENTOS:GET:${new Date().getTime().toString()}`,
-          'Consulta de mantenimientos'
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(mantenimiento);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `MANTENIMIENTOS:GET:${new Date().getTime().toString()}`,
+      'Consulta de mantenimientos'
+    );
+    redis.quit();
+  });
+
+  conexion.execute('SELECT * FROM mantenimiento', (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    res.json(result.rows);
   });
 };
 
 const getMantenimiento = (req, res) => {
-  conexion().then(() => {
-    const modelo = require('../../models/mantenimiento');
-    modelo.findById(req.params.id).then((mantenimiento) => {
-      redis.connect().then(() => {
-        redis.set(
-          `MANTENIMIENTOS:GET:${new Date().getTime().toString()}`,
-          `Consulta de mantenimiento ${mantenimiento._id}`
-        );
-        redis.quit();
-      });
-      res.header('Access-Control-Allow-Origin', '*').json(mantenimiento);
-    });
+  redis.connect().then(() => {
+    redis.set(
+      `MANTENIMIENTOS:GET:${new Date().getTime().toString()}`,
+      `Consulta de mantenimiento ${req.params.curp}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM mantenimiento where curp=?',
+    [req.params.curp],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows[0]);
+    }
+  );
 };
 
 const getTutorados = (req, res) => {
-  console.log(req.params);
-  conexion().then(() => {
-    const tutor = require('../../models/docentes');
-    tutor
-      .aggregate()
-      .lookup({
-        from: 'alumnos',
-        localField: 'tutorados',
-        foreignField: '_id',
-        as: 'tutorados',
-      })
-      .match({ _id: Types.ObjectId(req.params.id) })
-      .project({ tutorados: 1, _id: 0 })
-      .then((tutor) => {
-        redis.connect().then(() => {
-          redis.set(
-            `DOCENTES:GET:${new Date().getTime().toString()}`,
-            `Consulta de tutorados de ${req.params.id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(tutor);
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `DOCENTES:GET:${new Date().getTime().toString()}`,
+      `Consulta de tutorados de ${req.params.curp}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM alumnos_tutor WHERE tutor=?',
+    [req.params.curp],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows);
+    }
+  );
 };
 
 const getDocentesEscuela = (req, res) => {
-  conexion().then(() => {
-    const escuelas = require('../../models/escuelas');
-    escuelas
-      .aggregate()
-      .lookup({
-        from: 'docentes',
-        localField: 'docentes',
-        foreignField: '_id',
-        as: 'docentes',
-      })
-      .match({ _id: Types.ObjectId(req.params.id) })
-      .project({ docentes: 1, _id: 0 })
-      .then((docentes) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ESCUELAS:GET:${new Date().getTime().toString()}`,
-            `Consulta de docentes de ${req.params.id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(docentes);
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      `Consulta de docentes de ${req.params.clave}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM docentes_escuela WHERE escuela=?',
+    [req.params.clave],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows);
+    }
+  );
 };
 
 const getAdministrativosEscuela = (req, res) => {
-  conexion().then(() => {
-    const escuelas = require('../../models/escuelas');
-    escuelas
-      .aggregate()
-      .lookup({
-        from: 'administrativos',
-        localField: 'administrativos',
-        foreignField: '_id',
-        as: 'administrativos',
-      })
-      .match({ _id: Types.ObjectId(req.params.id) })
-      .project({ administrativos: 1, _id: 0 })
-      .then((administrativos) => {
-        redis.connect().then(() => {
-          redis.set(
-            `ESCUELAS:GET:${new Date().getTime().toString()}`,
-            `Consulta de administrativos de ${req.params.id}`
-          );
-          redis.quit();
-        });
-        res.header('Access-Control-Allow-Origin', '*').json(administrativos);
-      });
+  redis.connect().then(() => {
+    redis.set(
+      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      `Consulta de administrativos de ${req.params.clave}`
+    );
+    redis.quit();
   });
+
+  conexion.execute(
+    'SELECT * FROM administrativos_escuela WHERE escuela=?',
+    [req.params.clave],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows);
+    }
+  );
 };
 
 module.exports = {
