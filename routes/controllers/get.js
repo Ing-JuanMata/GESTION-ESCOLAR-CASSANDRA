@@ -4,10 +4,7 @@ const redis = conectores.redis();
 
 const getAlumnos = (req, res) => {
   redis.connect().then(() => {
-    redis.set(
-      `ALUMNOS:GET:${new Date().getTime().toString()}`,
-      'Consulta de alumnos'
-    );
+    redis.set(`ALUMNOS:GET:${new Date().toISOString()}`, 'Consulta de alumnos');
     redis.quit();
   });
 
@@ -22,7 +19,7 @@ const getAlumnos = (req, res) => {
 const getAlumno = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ALUMNOS:GET:${new Date().getTime().toString()}`,
+      `ALUMNOS:GET:${new Date().toISOString()}`,
       `Consulta de alumno ${req.params.curp}`
     );
     redis.quit();
@@ -44,7 +41,7 @@ const getAlumno = (req, res) => {
 const getEscuelas = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      `ESCUELAS:GET:${new Date().toISOString()}`,
       'Consulta de escuelas'
     );
     redis.quit();
@@ -62,7 +59,7 @@ const getEscuelas = (req, res) => {
 const getEscuela = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      `ESCUELAS:GET:${new Date().toISOString()}`,
       `Consulta de escuela ${req.params.clave}`
     );
     redis.quit();
@@ -84,7 +81,7 @@ const getEscuela = (req, res) => {
 const getDocentes = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `DOCENTES:GET:${new Date().getTime().toString()}`,
+      `DOCENTES:GET:${new Date().toISOString()}`,
       'Consulta de docentes'
     );
     redis.quit();
@@ -101,7 +98,7 @@ const getDocentes = (req, res) => {
 const getDocente = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `DOCENTES:GET:${new Date().getTime().toString()}`,
+      `DOCENTES:GET:${new Date().toISOString()}`,
       `Consulta de docente ${req.params.curp}`
     );
     redis.quit();
@@ -123,7 +120,7 @@ const getDocente = (req, res) => {
 const getAdmistrativos = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ADMINISTRATIVOS:GET:${new Date().getTime().toString()}`,
+      `ADMINISTRATIVOS:GET:${new Date().toISOString()}`,
       'Consulta de administrativos'
     );
     redis.quit();
@@ -140,7 +137,7 @@ const getAdmistrativos = (req, res) => {
 const getAdmistrativo = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ADMINISTRATIVOS:GET:${new Date().getTime().toString()}`,
+      `ADMINISTRATIVOS:GET:${new Date().toISOString()}`,
       `Consulta de administrativo ${req.params.curp}`
     );
     redis.quit();
@@ -162,7 +159,7 @@ const getAdmistrativo = (req, res) => {
 const getMantenimientos = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `MANTENIMIENTOS:GET:${new Date().getTime().toString()}`,
+      `MANTENIMIENTOS:GET:${new Date().toISOString()}`,
       'Consulta de mantenimientos'
     );
     redis.quit();
@@ -179,7 +176,7 @@ const getMantenimientos = (req, res) => {
 const getMantenimiento = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `MANTENIMIENTOS:GET:${new Date().getTime().toString()}`,
+      `MANTENIMIENTOS:GET:${new Date().toISOString()}`,
       `Consulta de mantenimiento ${req.params.curp}`
     );
     redis.quit();
@@ -201,7 +198,7 @@ const getMantenimiento = (req, res) => {
 const getTutorados = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `DOCENTES:GET:${new Date().getTime().toString()}`,
+      `DOCENTES:GET:${new Date().toISOString()}`,
       `Consulta de tutorados de ${req.params.curp}`
     );
     redis.quit();
@@ -223,7 +220,7 @@ const getTutorados = (req, res) => {
 const getDocentesEscuela = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      `ESCUELAS:GET:${new Date().toISOString()}`,
       `Consulta de docentes de ${req.params.clave}`
     );
     redis.quit();
@@ -245,7 +242,7 @@ const getDocentesEscuela = (req, res) => {
 const getAdministrativosEscuela = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ESCUELAS:GET:${new Date().getTime().toString()}`,
+      `ESCUELAS:GET:${new Date().toISOString()}`,
       `Consulta de administrativos de ${req.params.clave}`
     );
     redis.quit();

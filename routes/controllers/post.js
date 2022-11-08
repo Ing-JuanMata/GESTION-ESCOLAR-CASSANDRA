@@ -5,7 +5,7 @@ const redis = conectores.redis();
 const postAdministrativo = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ADMINISTRATIVOS:POST:${new Date().getTime().toString()}`,
+      `ADMINISTRATIVOS:POST:${new Date().toISOString()}`,
       `Registro de administrativo ${req.body.curp}`
     );
     redis.quit();
@@ -53,7 +53,7 @@ const postAdministrativo = (req, res) => {
 const postAlumno = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ALUMNOS:POST:${new Date().getTime().toString()}`,
+      `ALUMNOS:POST:${new Date().toISOString()}`,
       `Registro de alumno ${req.body.curp}`
     );
     redis.quit();
@@ -101,7 +101,7 @@ const postAlumno = (req, res) => {
 const postDocente = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `DOCENTES:POST:${new Date().getTime().toString()}`,
+      `DOCENTES:POST:${new Date().toISOString()}`,
       `Registro de docente ${req.body.curp}`
     );
     redis.quit();
@@ -153,7 +153,7 @@ const postDocente = (req, res) => {
 const postEscuela = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `ESCUELAS:POST:${new Date().getTime().toString()}`,
+      `ESCUELAS:POST:${new Date().toISOString()}`,
       `Registro de escuela ${req.body.clave}`
     );
     redis.quit();
@@ -184,7 +184,7 @@ const postEscuela = (req, res) => {
 const postMantenimiento = (req, res) => {
   redis.connect().then(() => {
     redis.set(
-      `MANTENIMIENTO:POST:${new Date().getTime().toString()}`,
+      `MANTENIMIENTO:POST:${new Date().toISOString()}`,
       `Registro de mantenimiento ${req.body.curp}`
     );
     redis.quit();
