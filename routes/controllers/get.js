@@ -261,6 +261,28 @@ const getAdministrativosEscuela = (req, res) => {
   );
 };
 
+const getMantenimientosEscuela = (req, res) => {
+  redis.connect().then(() => {
+    redis.set(
+      `MANTENIMIENTOS:GET:${new Date().toISOString()}`,
+      `Consulta de mantenimientos de ${req.params.clave}`
+    );
+    redis.quit();
+  });
+
+  conexion.execute(
+    'SELECT * FROM mantenimiento_escuela WHERE escuela=?',
+    [req.params.clave],
+    { prepare: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json(result.rows);
+    }
+  );
+};
+
 module.exports = {
   getAlumnos,
   getAlumno,
@@ -275,4 +297,5 @@ module.exports = {
   getTutorados,
   getDocentesEscuela,
   getAdministrativosEscuela,
+  getMantenimientosEscuela,
 };

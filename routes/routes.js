@@ -10,6 +10,7 @@ router.get('/escuelas', get.getEscuelas);
 router.get('/escuelas/:clave', get.getEscuela);
 router.get('/escuelas/:clave/docentes', get.getDocentesEscuela);
 router.get('/escuelas/:clave/administrativos', get.getAdministrativosEscuela);
+router.get('/escuelas/:clave/mantenimientos', get.getMantenimientosEscuela);
 router.get('/docentes', get.getDocentes);
 router.get('/docentes/:curp', get.getDocente);
 router.get('/docentes/:curp/tutorados', get.getTutorados);

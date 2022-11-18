@@ -14,7 +14,7 @@ const postAdministrativo = (req, res) => {
   const queries = [
     {
       query:
-        'INSERT INTO administrativos(curp, correo, cuenta, escuela, extension, funcion, nombre, telefono) VALUES(?,?,?,?,?,?,?,?)',
+        'INSERT INTO administrativos(curp, correo, cuenta, escuela, extension, funcion, nombre, telefono, hora_entrada, hora_salida) VALUES(?,?,?,?,?,?,?,?,?,?)',
       params: [
         req.body.curp,
         req.body.correo,
@@ -24,11 +24,13 @@ const postAdministrativo = (req, res) => {
         req.body.funcion,
         req.body.nombre,
         req.body.telefono,
+        req.body.hora_entrada,
+        req.body.hora_salida,
       ],
     },
     {
       query:
-        'INSERT INTO administrativos_escuela(curp, correo, cuenta, escuela, extension, funcion, nombre, telefono) VALUES(?,?,?,?,?,?,?,?)',
+        'INSERT INTO administrativos_escuela(curp, correo, cuenta, escuela, extension, funcion, nombre, telefono, hora_entrada, hora_salida) VALUES(?,?,?,?,?,?,?,?,?,?)',
       params: [
         req.body.curp,
         req.body.correo,
@@ -38,6 +40,8 @@ const postAdministrativo = (req, res) => {
         req.body.funcion,
         req.body.nombre,
         req.body.telefono,
+        req.body.hora_entrada,
+        req.body.hora_salida,
       ],
     },
   ];
@@ -110,7 +114,7 @@ const postDocente = (req, res) => {
   const queries = [
     {
       query:
-        'INSERT INTO docentes(curp, cuenta, escuela, especialidad, grado, nombre, numero_oficina, telefono, tutorados, tutorias_firmadas) VALUES(?,?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO docentes(curp, cuenta, escuela, especialidad, grado, nombre, numero_oficina, telefono, tutorias_firmadas) VALUES(?,?,?,?,?,?,?,?,?)',
       params: [
         req.body.curp,
         req.body.cuenta,
@@ -120,13 +124,12 @@ const postDocente = (req, res) => {
         req.body.nombre,
         req.body.numero_oficina,
         req.body.telefono,
-        req.body.tutorados,
         req.body.tutorias_firmadas,
       ],
     },
     {
       query:
-        'INSERT INTO docentes_escuela(curp, cuenta, escuela, especialidad, grado, nombre, numero_oficina, telefono, tutorados, tutorias_firmadas) VALUES(?,?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO docentes_escuela(curp, cuenta, escuela, especialidad, grado, nombre, numero_oficina, telefono, tutorias_firmadas) VALUES(?,?,?,?,?,?,?,?,?)',
       params: [
         req.body.curp,
         req.body.cuenta,
@@ -136,7 +139,6 @@ const postDocente = (req, res) => {
         req.body.nombre,
         req.body.numero_oficina,
         req.body.telefono,
-        req.body.tutorados,
         req.body.tutorias_firmadas,
       ],
     },
@@ -160,17 +162,8 @@ const postEscuela = (req, res) => {
   });
 
   cassandra.execute(
-    'INSERT INTO escuelas(clave, ciudad, direccion, nombre, administrativos, alumnos, docentes, mantenimiento) VALUES(?,?,?,?,?,?,?,?)',
-    [
-      req.body.clave,
-      req.body.ciudad,
-      req.body.direccion,
-      req.body.nombre,
-      req.body.administrativos,
-      req.body.alumnos,
-      req.body.docentes,
-      req.body.mantenimiento,
-    ],
+    'INSERT INTO escuelas(clave, ciudad, direccion, nombre) VALUES(?,?,?,?)',
+    [req.body.clave, req.body.ciudad, req.body.direccion, req.body.nombre],
     { prepare: true },
     (err, result) => {
       if (err) {
@@ -190,24 +183,41 @@ const postMantenimiento = (req, res) => {
     redis.quit();
   });
 
-  cassandra.execute(
-    'INSERT INTO mantenimiento(curp, escuela, especialidad, nombre, telefono, telefono_institucional) VALUES(?,?,?,?,?,?)',
-    [
-      req.body.curp,
-      req.body.escuela,
-      req.body.especialidad,
-      req.body.nombre,
-      req.body.telefono,
-      req.body.telefono_institucional,
-    ],
-    { prepare: true },
-    (err, result) => {
-      if (err) {
-        console.log(err);
-      }
-      res.json(result);
+  const queries = [
+    {
+      query:
+        'INSERT INTO mantenimiento(curp, escuela, especialidad, nombre, telefono, telefono_institucional, cuenta) VALUES(?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.escuela,
+        req.body.especialidad,
+        req.body.nombre,
+        req.body.telefono,
+        req.body.telefono_institucional,
+        req.body.cuenta,
+      ],
+    },
+    {
+      query:
+        'INSERT INTO mantenimiento_escuela(curp, escuela, especialidad, nombre, telefono, telefono_institucional, cuenta) VALUES(?,?,?,?,?,?,?)',
+      params: [
+        req.body.curp,
+        req.body.escuela,
+        req.body.especialidad,
+        req.body.nombre,
+        req.body.telefono,
+        req.body.telefono_institucional,
+        req.body.cuenta,
+      ],
+    },
+  ];
+
+  cassandra.batch(queries, { prepare: true }, (err, result) => {
+    if (err) {
+      console.log(err);
     }
-  );
+    res.json(result);
+  });
 };
 
 module.exports = {
